@@ -21,7 +21,7 @@ disk_load:
     jc disk_error ; if error (stored in the carry bit)
 
     pop dx
-    cmp al, dh    ; BIOS also sets 'al' to the # of sectors read. Compare it.
+    cmp dh, al    ; BIOS also sets 'al' to the # of sectors read. Compare it.
     jne sectors_error
     popa
     ret
@@ -30,8 +30,6 @@ disk_error:
     mov bx, DISK_ERROR
     call print_string
     call print_nl
-    mov dh, ah ; ah = error code, dl = disk drive that dropped the error
-    call print_hex ; check out the code at http://stanislavs.org/helppc/int_13-1.html
     jmp disk_loop
 
 sectors_error:
