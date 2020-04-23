@@ -30,6 +30,8 @@ disk_error:
     mov bx, DISK_ERROR
     call print_string
     call print_nl
+    mov dh, ah ; ah = error code, dl = disk drive that dropped the error
+    call print_hex 
     jmp disk_loop
 
 sectors_error:
