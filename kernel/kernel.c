@@ -1,6 +1,8 @@
-void main()
+#include "drivers/screen.h"
+
+void kernel_main()
 {
-    char *video_memory = (char*)0xb8000;
-    int i;
-    *(video_memory) = 'H';
+    clear_screen();
+    print_char('a', 25, 80, 0);
+    while(1);
 }
