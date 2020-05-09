@@ -45,4 +45,4 @@ run: os-image
 
 clean :
 	rm -fr *.bin *.dis *.o os-image
-	rm -fr kernel/*.o boot/*.bin kernel/drivers/*.o boot/*.o kernel.elf
+	rm -fr kernel/*.o boot/*.bin kernel/drivers/*/*.o boot/*.o kernel.elf
