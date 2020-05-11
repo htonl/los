@@ -29,7 +29,7 @@ int print_char(char c, int col, int row, char attr) {
     unsigned char *vidmem = (unsigned char*) VIDEO_ADDR;
     
     // ERROR
-    if (row >= MAX_ROWS) {
+    if (col >= MAX_COLS || row >= MAX_ROWS) {
         scroll_screen();
         col = 0;
         row = 24;
@@ -37,7 +37,6 @@ int print_char(char c, int col, int row, char attr) {
     if (!attr) {
         attr = WHITE_ON_BLACK;
     }
-
     int offset;
     if (col >= 0 && row >= 0) {
         offset = get_offset(col, row);
@@ -88,11 +87,9 @@ void clear_screen()
 
 void scroll_screen()
 {
-    void *s, *d;
-    d = (void*)VIDEO_ADDR;
-    s = (void*)VIDEO_ADDR_SCROLL_START;
-    memcpy(d, s, (VIDEO_ADDR_END - VIDEO_ADDR_SCROLL_START));
-    memset(VIDEO_LAST_ROW, '0', VIDEO_ADDR_END - VIDEO_LAST_ROW);
+    memcpy((void*)VIDEO_ADDR, (void*)VIDEO_ADDR_SCROLL_START,
+            (VIDEO_ADDR_END - VIDEO_ADDR_SCROLL_START));
+    memset((void*)VIDEO_LAST_ROW, 0, VIDEO_ADDR_END - VIDEO_LAST_ROW);
 }
 
 int get_offset(int col, int row) { 
