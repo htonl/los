@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "ports.h"
+#include <util.h>
 
 /* Declaration of private functions */
 int get_cursor_offset();
@@ -8,6 +9,7 @@ int print_char(char c, int col, int row, char attr);
 int get_offset(int col, int row);
 int get_offset_row(int offset);
 int get_offset_col(int offset);
+void scroll_screen();
 
 void kprint_at(char *message, int col, int row) {
     int offset;
@@ -24,13 +26,13 @@ void printk(char *message) {
 }
 
 int print_char(char c, int col, int row, char attr) {
-    unsigned char *vidmem = (unsigned char*) VIDEO_ADDRESS;
+    unsigned char *vidmem = (unsigned char*) VIDEO_ADDR;
     
     // ERROR
-    if (col >= MAX_COLS || row >= MAX_ROWS) {
-        vidmem[2*(MAX_COLS)*(MAX_ROWS)-2] = 'E';
-        vidmem[2*(MAX_COLS)*(MAX_ROWS)-1] = RED_ON_WHITE;
-        return get_offset(col, row);
+    if (row >= MAX_ROWS) {
+        scroll_screen();
+        col = 0;
+        row = 24;
     }
     if (!attr) {
         attr = WHITE_ON_BLACK;
@@ -75,13 +77,22 @@ void clear_screen()
 {
     int screen_size = MAX_COLS * MAX_ROWS;
     int i;
-    unsigned char *screen = (unsigned char*)VIDEO_ADDRESS;
+    unsigned char *screen = (unsigned char*)VIDEO_ADDR;
 
     for (i = 0; i < screen_size; i++) {
         screen[i*2] = ' ';
         screen[i*2+1] = WHITE_ON_BLACK;
     }
     set_cursor_offset(get_offset(0, 0));
+}
+
+void scroll_screen()
+{
+    void *s, *d;
+    d = (void*)VIDEO_ADDR;
+    s = (void*)VIDEO_ADDR_SCROLL_START;
+    memcpy(d, s, (VIDEO_ADDR_END - VIDEO_ADDR_SCROLL_START));
+    memset(VIDEO_LAST_ROW, '0', VIDEO_ADDR_END - VIDEO_LAST_ROW);
 }
 
 int get_offset(int col, int row) { 

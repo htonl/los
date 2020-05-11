@@ -1,6 +1,7 @@
 # Automatically generate lists of sources using wildcards .
-C_SOURCES = $(wildcard kernel/*.c kernel/drivers/*/*.c)
-HEADERS = $(wildcard kernel/*.h kernel/drivers/*/*.h)
+C_SOURCES = $(wildcard kernel/*.c kernel/drivers/*/*.c kernel/include/*.c)
+HEADERS = $(wildcard kernel/*.h kernel/drivers/*/*.h kernel/include/*.h)
+INC = kernel/include/
 # TODO : Make sources dep on all header files .
 # Convert the *.c filenames to *.o to give a list of object files to build
 OBJ = ${C_SOURCES:.c=.o}
@@ -24,7 +25,7 @@ kernel.elf: boot/kernel_entry.o ${OBJ}
 	ld -m elf_i386 -o $@ -Ttext 0x1000 $^
 
 debug: os-image kernel.elf
-	qemu-system-i386 -fda -s os-image &
+	qemu-system-i386 -s -fda os-image &
 	${GDB} -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
 
 # Run bochs to simulate booting of our code .
@@ -34,7 +35,7 @@ run: os-image
 # Generic rule for compiling C code to an object file
 # For simplicity , we C files depend on all header files .
 %.o : %.c ${HEADERS}
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC} ${CFLAGS} -I ${INC} -c $< -o $@
 
 # Assemble the kernel_entry .
 %.o : %.asm
