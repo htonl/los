@@ -3,13 +3,13 @@
 #include <util.h>
 
 /* Declaration of private functions */
-int get_cursor_offset();
-void set_cursor_offset(int offset);
-int print_char(char c, int col, int row, char attr);
-int get_offset(int col, int row);
-int get_offset_row(int offset);
-int get_offset_col(int offset);
-void scroll_screen();
+static int get_cursor_offset();
+static void set_cursor_offset(int offset);
+static int print_char(char c, int col, int row, char attr);
+static int get_offset(int col, int row);
+static int get_offset_row(int offset);
+static int get_offset_col(int offset);
+static void scroll_screen();
 
 void kprint_at(char *message, int col, int row) {
     int offset;
@@ -25,10 +25,9 @@ void printk(char *message) {
     kprint_at(message, -1, -1);
 }
 
-int print_char(char c, int col, int row, char attr) {
+static int print_char(char c, int col, int row, char attr) {
     unsigned char *vidmem = (unsigned char*) VIDEO_ADDR;
     
-    // ERROR
     if (col >= MAX_COLS || row >= MAX_ROWS) {
         scroll_screen();
         col = 0;
@@ -44,7 +43,11 @@ int print_char(char c, int col, int row, char attr) {
     else offset = get_cursor_offset();
     if (c == '\n') {
         row = get_offset_row(offset);
-        offset = get_offset(0, row+1);
+        if (row == 24) {
+            scroll_screen();
+            offset = get_offset(0,24);
+        } else
+            offset = get_offset(0, row+1);
     } else {
         vidmem[offset] = c;
         vidmem[offset+1] = attr;
@@ -54,7 +57,7 @@ int print_char(char c, int col, int row, char attr) {
     return offset;
 }
 
-int get_cursor_offset()
+static int get_cursor_offset()
 {
     port_byte_out(REG_SCREEN_CTRL, 14);
     int offset = port_byte_in(REG_SCREEN_DATA) << 8;
@@ -63,7 +66,7 @@ int get_cursor_offset()
     return offset * 2;
 }
 
-void set_cursor_offset(int offset) 
+static void set_cursor_offset(int offset) 
 {
     offset /= 2;
     port_byte_out(REG_SCREEN_CTRL, 14);
@@ -85,19 +88,19 @@ void clear_screen()
     set_cursor_offset(get_offset(0, 0));
 }
 
-void scroll_screen()
+static void scroll_screen()
 {
     memcpy((void*)VIDEO_ADDR, (void*)VIDEO_ADDR_SCROLL_START,
             (VIDEO_ADDR_END - VIDEO_ADDR_SCROLL_START));
     memset((void*)VIDEO_LAST_ROW, 0, VIDEO_ADDR_END - VIDEO_LAST_ROW);
 }
 
-int get_offset(int col, int row) { 
+static int get_offset(int col, int row) { 
     return 2 * (row * MAX_COLS + col); 
 }
-int get_offset_row(int offset) { 
+static int get_offset_row(int offset) { 
     return offset / (2 * MAX_COLS); 
 }
-int get_offset_col(int offset) { 
+static int get_offset_col(int offset) { 
     return (offset / 2) % MAX_COLS; 
 }
