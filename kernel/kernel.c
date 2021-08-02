@@ -1,4 +1,4 @@
-#include "drivers/vga/screen.h"
+#include "../drivers/vga/screen.h"
 #include <util.h>
 
 void kernel_main()

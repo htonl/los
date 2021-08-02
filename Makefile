@@ -1,6 +1,6 @@
 # Automatically generate lists of sources using wildcards .
-C_SOURCES = $(wildcard kernel/*.c kernel/drivers/*/*.c kernel/include/*.c)
-HEADERS = $(wildcard kernel/*.h kernel/drivers/*/*.h kernel/include/*.h)
+C_SOURCES = $(wildcard kernel/*.c drivers/*/*.c kernel/include/*.c cpu/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*/*.h kernel/include/*.h cpu/*.h)
 INC = kernel/include/
 # TODO : Make sources dep on all header files .
 # Convert the *.c filenames to *.o to give a list of object files to build
@@ -46,4 +46,4 @@ run: os-image
 
 clean :
 	rm -fr *.bin *.dis *.o os-image
-	rm -fr kernel/*.o boot/*.bin kernel/drivers/*/*.o boot/*.o kernel.elf
+	rm -fr kernel/*.o boot/*.bin drivers/*/*.o boot/*.o kernel.elf
